@@ -1,0 +1,399 @@
+%% minimalist-manual.tex -- User manual of the "minimalist" Beamer theme.
+%% This manual is itself a presentation built with the theme.
+%% Build:  latexmk -pdf minimalist-manual.tex   (run twice for frame totals)
+\documentclass[11pt,aspectratio=169,t]{beamer}
+
+\usepackage[english]{babel}
+\usetheme[footer=total,titlerule,sectionpages]{minimalist}
+
+\tcbuselibrary{listings}
+% "Code | Result" boxes used throughout this manual
+\tcbset{
+  demo base/.style={
+    listing options={language={[LaTeX]TeX},basicstyle=\ttfamily\scriptsize,
+      breaklines=true,backgroundcolor={},frame=none,xleftmargin=0pt},
+    sharp corners, boxrule=0.4pt, colframe=black!55, colback=black!3,
+    colbacklower=white, colupper=black!85, halign lower=flush left,
+    left=4pt, right=4pt, top=3pt, bottom=3pt,
+    before skip=0.3em, after skip=0.3em},
+  demo/.style={demo base, listing side text,
+    lefthand width=0.55\linewidth, sidebyside gap=6pt},
+  demo stacked/.style={demo base, listing and text},
+}
+
+\title{Minimalist Beamer Theme}
+\subtitle{User manual and example gallery}
+\author{Version 1.0.0}
+\institute{pdfLaTeX \textbullet\ XeLaTeX \textbullet\ LuaLaTeX}
+\date{October 2026}
+
+\begin{document}
+
+\begin{frame}[c]\titlepage\end{frame}
+
+\begin{frame}{Contents}
+  \tableofcontents
+\end{frame}
+
+%% =====================================================================
+\section{Getting started}
+
+\begin{frame}{What is this theme?}
+  A \concept{minimalist, grayscale} Beamer theme: white background, sans-serif
+  text, no navigation symbols, and a small set of reusable building blocks.
+
+  \begin{twocol}
+    \concept{Layout}
+    \begin{itemize}
+      \item Left-aligned title page and frame titles
+      \item Optional section divider pages
+      \item \code{onecol}, \code{twocol} and \code{threecol} environments
+    \end{itemize}
+    \nextcol
+    \concept{Content}
+    \begin{itemize}
+      \item Figures: TikZ, \code{\textbackslash flow}, images
+      \item Tables: \code{booktabs}, \code{L}/\code{C}/\code{R}
+      \item Boxes: \code{callout}, \code{statement}, \dots
+      \item Code listings and math
+    \end{itemize}
+  \end{twocol}
+
+  \begin{notebox}
+    Documentation and commands are in English; your slides can be in any
+    \code{babel} language (e.g.\ Spanish: ñ, á, ¿, ¡).
+  \end{notebox}
+\end{frame}
+
+\begin{frame}[fragile]{Quick start}
+\begin{lstlisting}[language={[LaTeX]TeX}]
+\documentclass[11pt,aspectratio=169]{beamer}
+\usepackage[spanish,es-tabla]{babel}   % or english, etc.
+\usetheme[footer=total]{minimalist}
+
+\title{My talk}
+\author{Me}
+\begin{document}
+\frame{\titlepage}
+\frame{\frametitle{Hello}
+  Some text and a \concept{key term}.}
+\end{document}
+\end{lstlisting}
+  Put \code{beamerthememinimalist.sty} next to your \code{.tex} file (or in
+  your local \code{texmf} tree) and compile with
+  \code{latexmk -pdf}.
+\end{frame}
+
+\begin{frame}{Theme options}
+  \small
+  Pass options to the theme: \code{\textbackslash usetheme[\textit{options}]\{minimalist\}}.
+
+  \vspace{0.5em}
+  \begin{tabular}{@{}l l l L{5.6cm}@{}}
+    \toprule
+    \textbf{Option} & \textbf{Values} & \textbf{Default} & \textbf{Effect}\\
+    \midrule
+    \code{accent}       & any color expr.        & \code{black!75} & Color of bullets, rules, box frames and titles\\
+    \code{footer}       & \code{number}, \code{total}, \code{none} & \code{number} & Frame counter style (bottom right)\\
+    \code{font}         & \code{helvetica}, \code{default} & \code{helvetica} & Helvetica clone, or Beamer's default sans font\\
+    \code{titlerule}    & boolean                & \code{false}    & Thin rule under each frame title\\
+    \code{sectionpages} & boolean                & \code{false}    & Automatic divider frame at each \code{\textbackslash section}\\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.6em}
+  Example: \code{\textbackslash usetheme[accent=blue!60!black,footer=total,titlerule]\{minimalist\}}
+\end{frame}
+
+\begin{frame}[fragile]{Languages and TeX engines}
+  \begin{twocol}[split=0.5]
+    \concept{Languages}
+    \begin{itemize}
+      \item The theme never loads \code{babel}: you choose the language.
+      \item Captions follow \code{babel}: \emph{Figure}, \emph{Figura}, \emph{Tabla}.
+      \item With Spanish, \code{es-tabla} gives ``Tabla'' instead of ``Cuadro''.
+      \item Accents and \code{ñ ¿ ¡} work out of the box (UTF-8).
+    \end{itemize}
+    \nextcol
+    \concept{Engines}
+    \begin{itemize}
+      \item \textbf{pdfLaTeX}: T1 fonts and the Helvetica clone.
+      \item \textbf{XeLaTeX / LuaLaTeX}: \code{fontspec} with TeX Gyre Heros.
+      \item Detection is automatic (\code{iftex}).
+      \item Listings accept accented characters under all engines.
+    \end{itemize}
+  \end{twocol}
+\begin{lstlisting}[language={[LaTeX]TeX}]
+\usepackage[spanish,es-tabla]{babel}  % load BEFORE \usetheme
+\usetheme{minimalist}
+\end{lstlisting}
+\end{frame}
+
+%% =====================================================================
+\section{Page layout}
+
+\begin{frame}{Title page and sections}
+  The \code{\textbackslash titlepage} shows title, subtitle, author,
+  institute and date, left aligned with a short accent rule.
+
+  \vspace{0.4em}
+  \begin{itemize}
+    \item \code{\textbackslash section\{\ldots\}} marks a section; with the option
+          \code{sectionpages} a divider frame is inserted automatically.
+    \item Without that option, insert one manually:
+          \code{\textbackslash begin\{frame\}\textbackslash sectionpage\textbackslash end\{frame\}}.
+    \item \code{\textbackslash tableofcontents} uses numbered sections.
+    \item \code{\textbackslash framesubtitle\{\ldots\}} adds a subtitle under the frame title.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{One column}
+  By default content uses the full text width, which is \concept{one column}.
+  For a narrower, centered measure use \code{onecol}:
+
+\begin{tcblisting}{demo}
+\begin{onecol}[width=0.7]
+  A narrower text block, centered
+  on the slide. Good for quotes,
+  definitions or short statements.
+\end{onecol}
+\end{tcblisting}
+  \code{width} is a fraction of the text width (default \code{0.8}).
+\end{frame}
+
+\begin{frame}{Two columns: result}
+  \framesubtitle{Use \code{twocol} on the slides that need it}
+  \begin{twocol}[split=0.45]
+    \concept{Left column}
+    \begin{itemize}
+      \item Plain text, lists, formulas\ldots
+      \item Any content works inside a column.
+    \end{itemize}
+    \nextcol
+    \begin{callout}[title=Right column]
+      Boxes, figures and tables fit too.
+    \end{callout}
+  \end{twocol}
+  Content after \code{\textbackslash end\{twocol\}} goes back to the full width.
+\end{frame}
+
+\begin{frame}[fragile]{Two or three columns: source and keys}
+\begin{lstlisting}[language={[LaTeX]TeX}]
+\begin{twocol}[split=0.45]
+  Left column content
+\nextcol
+  Right column content
+\end{twocol}
+% three columns: \begin{threecol} A \nextcol B \nextcol C \end{threecol}
+\end{lstlisting}
+  \small
+  \begin{tabular}{@{}l l L{6.6cm}@{}}
+    \toprule
+    \textbf{Key} & \textbf{Default} & \textbf{Meaning}\\
+    \midrule
+    \code{split} & \code{0.5}  & Left column share of the width (\code{twocol} only)\\
+    \code{gap}   & \code{0.04} / \code{0.06}$^*$ & Fraction of the width left empty between columns\\
+    \code{align} & \code{T}    & Vertical alignment: \code{T}, \code{c} or \code{b}\\
+    \bottomrule
+  \end{tabular}
+  \par\smallskip{\footnotesize $^*$ default for \code{twocol} / \code{threecol}.}
+\end{frame}
+
+%% =====================================================================
+\section{Building blocks}
+
+\begin{frame}[fragile]{Text helpers}
+\begin{tcblisting}{demo}
+\concept{Key term} in bold,
+\code{inline\_code()} in monospace,
+\alert{alert} for emphasis.
+
+\flowline{Design, Code, Test, Integrate}
+
+Single arrow: A \arr\ B
+\end{tcblisting}
+  Standard \code{itemize}, \code{enumerate} and \code{description} keep
+  Beamer's behavior, tinted with the accent color.
+\end{frame}
+
+\begin{frame}[fragile]{Figures: process flows with \texttt{\textbackslash flow}}
+  \code{\textbackslash flow\{A, B, C\}} draws a centered chain of nodes joined by
+  arrows and shrinks it to fit the line. Use \code{\textbackslash\textbackslash} for line breaks.
+
+\begin{tcblisting}{demo stacked}
+\flow{Requirements, Domain\\model, Design, Code}
+\end{tcblisting}
+  Pass TikZ options in brackets:
+  \code{\textbackslash flow[node distance=1cm]\{\ldots\}}.
+\end{frame}
+
+\begin{frame}[fragile]{Figures: custom TikZ with theme styles}
+  Styles: \code{mn node}, \code{mn arrow}, \code{mn dashed arrow}, \code{mn circle}.
+
+\begin{tcblisting}{demo stacked, listing options={basicstyle=\ttfamily\tiny}}
+\begin{tikzpicture}[mn circle/.append style={minimum size=1.5cm}]
+  \node[mn circle] (r) {RED};
+  \node[mn circle, right=1.4cm of r] (g) {GREEN};
+  \node[mn circle, right=1.4cm of g] (f) {REFACTOR};
+  \draw[mn arrow] (r) -- (g);  \draw[mn arrow] (g) -- (f);
+  \draw[mn dashed arrow, bend left=30] (f) to (r);
+\end{tikzpicture}
+\end{tcblisting}
+\end{frame}
+
+\begin{frame}[fragile]{Figures: images and captions}
+  \begin{twocol}[split=0.5,align=c]
+\begin{lstlisting}[language={[LaTeX]TeX}]
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\linewidth]%
+    {example-image-a}
+  \caption{An example image.}
+\end{figure}
+\end{lstlisting}
+    Captions are numbered and follow the \code{babel} language.
+    \nextcol
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.6\linewidth]{example-image-a}
+      \caption{An example image.}
+    \end{figure}
+  \end{twocol}
+\end{frame}
+
+\begin{frame}[fragile]{Tables}
+  Use \code{booktabs} rules and the column types \code{L\{w\}}, \code{C\{w\}}, \code{R\{w\}}
+  (left, centered, right; fixed width, wrapped text).
+
+\begin{tcblisting}{demo, lefthand width=0.58\linewidth}
+\begin{table}
+  \centering
+  \begin{tabular}{@{}L{1.7cm}C{1cm}R{1.1cm}@{}}
+    \toprule
+    \textbf{Item} & \textbf{Qty} & \textbf{Price}\\
+    \midrule
+    Pencil & 3 & 1.20\\
+    Notebook & 2 & 4.50\\
+    \bottomrule
+  \end{tabular}
+  \caption{A table.}
+\end{table}
+\end{tcblisting}
+\end{frame}
+
+\begin{frame}[fragile]{Boxes: \texttt{callout} and \texttt{statement}}
+\begin{tcblisting}{demo}
+\begin{callout}
+  Outlined box for a key idea.
+\end{callout}
+
+\begin{callout}[title=With a title]
+  Any tcolorbox key can be passed.
+\end{callout}
+
+\begin{statement}
+  A centered, emphasized sentence.
+\end{statement}
+\end{tcblisting}
+\end{frame}
+
+\begin{frame}[fragile]{Boxes: \texttt{notebox} and Beamer blocks}
+\begin{tcblisting}{demo}
+\begin{notebox}[title=Note]
+  Soft gray note with a left bar.
+\end{notebox}
+
+\begin{block}{Block}
+  Standard Beamer block.
+\end{block}
+
+\begin{alertblock}{Alert}
+  Use sparingly.
+\end{alertblock}
+\end{tcblisting}
+\end{frame}
+
+\begin{frame}[fragile]{Code listings}
+  \alert{Frames with listings need the \code{[fragile]} option.}
+  The \code{minimalist} listings style is already active:
+
+\begin{lstlisting}[language=Python]
+def peso_total(envio):
+    # Suma el peso de cada línea de suministro
+    return sum(l.peso * l.cantidad for l in envio.lineas)
+\end{lstlisting}
+  Inline: \lstinline{assert peso_total(e) <= v.capacidad}.
+  Choose another language with \code{[language=Java]}, or set it for the
+  whole deck with \code{\textbackslash lstset\{language=Python\}}.
+\end{frame}
+
+\begin{frame}[fragile]{Math, definitions and theorems}
+\begin{tcblisting}{demo}
+\begin{definition}
+  A set $S$ is \emph{finite} if\ldots
+\end{definition}
+\begin{theorem}
+  $\displaystyle\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$
+\end{theorem}
+\end{tcblisting}
+  The names (``Definition'', ``Teorema'', \ldots) are translated by \code{babel}.
+\end{frame}
+
+%% =====================================================================
+\section{Reference}
+
+\begin{frame}{Command reference}
+  \footnotesize
+  \begin{tabular}{@{}L{5.6cm}L{7.8cm}@{}}
+    \toprule
+    \textbf{Command / environment} & \textbf{Purpose}\\
+    \midrule
+    \code{twocol[split,gap,align]}, \code{\textbackslash nextcol} & Two columns; \code{\textbackslash nextcol} starts the second one\\
+    \code{threecol[gap]}, \code{\textbackslash nextcol} & Three equal columns (same \code{\textbackslash nextcol})\\
+    \code{onecol[width]}      & Centered single column of a given fraction of the width\\
+    \code{callout[opts]}      & Outlined box, optional \code{title=}\\
+    \code{statement[opts]}    & Centered, emphasized box\\
+    \code{notebox[opts]}      & Gray note with left bar\\
+    \code{\textbackslash concept\{\}}, \code{\textbackslash code\{\}}, \code{\textbackslash arr} & Bold term, monospace, arrow\\
+    \code{\textbackslash flowline\{A,B,C\}} & Inline chain  A \arr\ B \arr\ C\\
+    \code{\textbackslash flow[opts]\{A,B,C\}} & TikZ node chain joined by arrows\\
+    \code{mn node}, \code{mn arrow}, \code{mn dashed arrow}, \code{mn circle} & TikZ styles\\
+    \code{L\{w\}}, \code{C\{w\}}, \code{R\{w\}} & Fixed-width table columns\\
+    \code{lstlisting} (style \code{minimalist}) & Code listings (fragile frames)\\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{Customization}
+  \begin{itemize}\small
+    \item \concept{Aspect ratio:} \code{\textbackslash documentclass[aspectratio=43]\{beamer\}}.
+    \item \concept{Top alignment:} class option \code{t}; use \code{[c]} on a single frame to center it.
+    \item \concept{Accent color:} \code{\textbackslash usetheme[accent=blue!50!black]\{minimalist\}}.
+    \item \concept{Margins:} \code{\textbackslash setbeamersize\{text margin left=1.2cm\}}.
+    \item \concept{Node look:} \code{\textbackslash tikzset\{mn node/.append style=\{fill=black!5\}\}}.
+    \item \concept{Boxes:} \code{\textbackslash tcbset\{mn base/.append style=\{arc=3pt\}\}}.
+    \item \concept{Table spacing:} \code{\textbackslash renewcommand\{\textbackslash arraystretch\}\{1.2\}}.
+  \end{itemize}
+  \vspace{0.4em}
+  \begin{callout}
+    Override these \emph{after} \code{\textbackslash usetheme}.
+  \end{callout}
+\end{frame}
+
+\begin{frame}{Migrating from the original ad-hoc template}
+  \small
+  \begin{tabular}{@{}L{5.4cm}C{0.8cm}L{6.6cm}@{}}
+    \toprule
+    \textbf{Original} & & \textbf{Theme}\\
+    \midrule
+    \code{\textbackslash concepto\{\ldots\}} & \arr & \code{\textbackslash concept\{\ldots\}}\\
+    \code{\textbackslash caja\{\textbackslash centering \ldots\}} & \arr & \code{statement} or \code{callout}\\
+    \code{columns} + \code{\textbackslash column\{0.47\textbackslash linewidth\}} & \arr & \code{twocol[split=0.5]} + \code{\textbackslash nextcol}\\
+    TikZ chain with \code{every node/.style} & \arr & \code{\textbackslash flow\{A, B, C\}} or \code{mn node}\\
+    \code{p\{4cm\}} with \code{\textbackslash raggedright} & \arr & \code{L\{4cm\}}\\
+    Preamble with fonts, colors, footline & \arr & \code{\textbackslash usetheme\{minimalist\}}\\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\end{document}

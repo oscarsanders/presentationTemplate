@@ -1,0 +1,508 @@
+%% example-spanish-session5.tex
+%% Example deck written in Spanish with the "minimalist" Beamer theme.
+%% It is the original "Sesión 5" lecture ported to the theme: it shows
+%% one/two/three columns, flows, tables, boxes and custom TikZ figures.
+\documentclass[11pt,aspectratio=169]{beamer}
+
+\usepackage[spanish,es-tabla]{babel}
+\usetheme[footer=number]{minimalist}
+
+\title{Sesión 5: Construcción de Software}
+\subtitle{Del Diseño al Código, TDD, Calidad e Integración}
+\author{Proyecto Integrador: SafeRoute}
+\date{Sábado 3 de octubre de 2026}
+
+\begin{document}
+
+%% 1. Portada
+\begin{frame}\titlepage\end{frame}
+
+%% 2. ¿Dónde estamos?
+\begin{frame}{¿Dónde estamos en el proyecto?}
+Durante las sesiones anteriores construimos progresivamente una solución:
+
+\flow[mn node/.append style={minimum width=2.4cm}]{%
+  Requisitos, Modelo\\del dominio, Diseño\\OO, Diseño\\dinámico, Código}
+
+\begin{twocol}[split=0.5]
+  \begin{block}{Sesiones 2--4}
+    Construimos modelos que responden:
+    \begin{itemize}
+      \item ¿Qué necesita el usuario?
+      \item ¿Qué objetos existen?
+      \item ¿Quién es responsable?
+      \item ¿Cómo colaboran?
+    \end{itemize}
+  \end{block}
+\nextcol
+  \begin{block}{Sesión 5}
+    Ahora debemos responder:
+    \begin{center}\Large
+      \textbf{¿Cómo convertimos esas decisiones en software funcional?}
+    \end{center}
+  \end{block}
+\end{twocol}
+\end{frame}
+
+%% 3. Construcción de software
+\begin{frame}{Construcción de software}
+La construcción es la creación detallada de software funcional mediante
+actividades como:
+\begin{itemize}
+  \item codificación;
+  \item verificación;
+  \item pruebas unitarias;
+  \item integración de componentes;
+  \item corrección y refactorización.
+\end{itemize}
+
+\begin{statement}
+  Construir software no significa simplemente escribir código.
+\end{statement}
+
+La construcción debe respetar las decisiones tomadas durante el análisis y el diseño:
+
+\begin{center}
+  \flowline{Requisitos, Diseño, Implementación, Verificación}
+\end{center}
+\end{frame}
+
+%% 4. Del diseño al código (tabla)
+\begin{frame}{Del diseño orientado a objetos al código}
+El diseño proporciona una guía para estructurar la implementación.
+
+\begin{center}
+  \begin{tabular}{L{4.1cm}C{1cm}L{5.3cm}}
+    \toprule
+    \textbf{Diseño} & & \textbf{Implementación}\\
+    \midrule
+    Clase         & \arr & \code{class}\\
+    Atributo      & \arr & Campo o propiedad\\
+    Operación     & \arr & Método\\
+    Asociación    & \arr & Referencia entre objetos\\
+    Multiplicidad & \arr & Colección o relación apropiada\\
+    Mensaje       & \arr & Llamada a una operación\\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\begin{callout}[halign=center]
+  El objetivo no es traducir el UML literalmente, sino implementar las
+  responsabilidades y colaboraciones que el diseño justifica.
+\end{callout}
+\end{frame}
+
+%% 5. Del mensaje al método
+\begin{frame}{Del mensaje del diagrama de secuencia al método}
+En la sesión anterior vimos mensajes como:
+\begin{center}\Large\code{envio.agregarSuministro(suministro)}\end{center}
+
+Ese mensaje puede conducir a una operación del objeto receptor:
+
+\flow[node distance=1.2cm,mn node/.append style={minimum width=3.3cm}]{%
+  Mensaje, Operación, Implementación}
+
+Implica que \code{Envio} debe tener una responsabilidad relacionada con la
+gestión de sus suministros.
+
+\begin{callout}[halign=center]
+  La implementación debe ser consecuencia del diseño, no una actividad
+  independiente de él.
+\end{callout}
+\end{frame}
+
+%% 6. Construcción incremental
+\begin{frame}{Construcción incremental}
+En lugar de implementar todo el sistema de una sola vez:
+\begin{statement}
+  Construimos una pequeña parte funcional y verificable.
+\end{statement}
+
+\flow[mn node/.append style={minimum width=2.3cm,font=\footnotesize}]{%
+  Historia /\\comportamiento, Prueba, Implementación, Refactorización, Integración}
+
+Ventajas:
+\begin{itemize}
+  \item Reduce el tamaño de los cambios.
+  \item Permite detectar errores temprano.
+  \item Facilita la revisión del código.
+  \item Produce incrementos funcionales.
+\end{itemize}
+\end{frame}
+
+%% 7. TDD
+\begin{frame}{Desarrollo guiado por pruebas: TDD}
+\concept{Test-Driven Development} propone escribir primero una prueba que
+exprese el comportamiento esperado.
+
+\begin{center}
+\begin{tikzpicture}[mn circle/.append style={minimum size=2.1cm}]
+  \node[mn circle] (red)   {RED\\Prueba\\falla};
+  \node[mn circle, right=2cm of red]   (green) {GREEN\\Prueba\\pasa};
+  \node[mn circle, right=2cm of green] (ref)   {REFACTOR\\Mejorar\\diseño};
+  \draw[mn arrow] (red) -- (green);
+  \draw[mn arrow] (green) -- (ref);
+  \draw[mn arrow, bend left=25] (ref) to (red);
+\end{tikzpicture}
+\end{center}
+
+\begin{itemize}
+  \item \concept{RED:} escribir una prueba que falle.
+  \item \concept{GREEN:} implementar lo mínimo necesario para pasarla.
+  \item \concept{REFACTOR:} mejorar el código sin cambiar el comportamiento.
+\end{itemize}
+\end{frame}
+
+%% 8. Ejemplo TDD SafeRoute
+\begin{frame}{TDD aplicado a SafeRoute}
+\textbf{Regla de negocio:}
+\begin{center}\large
+  Un envío no puede superar la capacidad máxima del vehículo.
+\end{center}
+
+Primero expresamos el comportamiento mediante una prueba:
+
+\begin{center}
+\begin{tikzpicture}[mn node/.append style={minimum width=3.4cm}]
+  \node[mn node] (test) {Prueba:\\envío excede capacidad};
+  \node[mn node, right=1.2cm of test] (fail) {RED:\\todavía falla};
+  \node[mn node, right=1.2cm of fail] (impl) {Implementación\\mínima};
+  \node[mn node, below=0.8cm of impl] (pass) {GREEN:\\prueba pasa};
+  \node[mn node, left=1.2cm of pass]  (ref)  {REFACTOR:\\mejorar diseño};
+  \draw[mn arrow] (test) -- (fail);
+  \draw[mn arrow] (fail) -- (impl);
+  \draw[mn arrow] (impl) -- (pass);
+  \draw[mn arrow] (pass) -- (ref);
+\end{tikzpicture}
+\end{center}
+
+El ciclo permite desarrollar el comportamiento paso a paso, manteniendo una
+verificación automática.
+\end{frame}
+
+%% 9. AAA (tres columnas)
+\begin{frame}{Anatomía de una prueba unitaria: AAA}
+Una prueba puede organizarse en tres fases:
+
+\begin{threecol}
+  \begin{block}{Arrange}
+    Preparar el escenario.
+    \begin{itemize}
+      \item Crear objetos.
+      \item Definir datos.
+      \item Establecer condiciones iniciales.
+    \end{itemize}
+  \end{block}
+\nextcol
+  \begin{block}{Act}
+    Ejecutar el comportamiento.
+    \begin{itemize}
+      \item Invocar el método.
+      \item Ejecutar la operación bajo prueba.
+    \end{itemize}
+  \end{block}
+\nextcol
+  \begin{block}{Assert}
+    Verificar el resultado.
+    \begin{itemize}
+      \item Comparar resultados.
+      \item Verificar estados.
+      \item Verificar errores.
+    \end{itemize}
+  \end{block}
+\end{threecol}
+
+\begin{callout}[halign=center]
+  Una prueba debe hacer evidente qué comportamiento se está verificando y qué
+  resultado se espera.
+\end{callout}
+\end{frame}
+
+%% 10. Código limpio (dos columnas + tabla)
+\begin{frame}{Código limpio: diseñado para ser leído}
+El código se modifica y se lee constantemente. Por ello, la legibilidad es
+una propiedad de calidad.
+
+\begin{twocol}
+  \begin{block}{Nombres}
+    \begin{itemize}
+      \item Revelar intención.
+      \item Evitar abreviaturas ambiguas.
+      \item Usar vocabulario del dominio.
+    \end{itemize}
+  \end{block}
+\nextcol
+  \begin{block}{Funciones}
+    \begin{itemize}
+      \item Responsabilidad clara.
+      \item Nivel de abstracción coherente.
+      \item Evitar lógica innecesariamente compleja.
+    \end{itemize}
+  \end{block}
+\end{twocol}
+
+\begin{center}
+  \begin{tabular}{L{4.5cm}C{1cm}L{5cm}}
+    \toprule
+    \textbf{Menos claro} & & \textbf{Más expresivo}\\
+    \midrule
+    \code{calcPeso(e)} & \arr & \code{calcularPeso(envio)}\\
+    \code{v}           & \arr & \code{vehiculo}\\
+    \code{proc()}      & \arr & \code{validarCapacidad()}\\
+    \bottomrule
+  \end{tabular}
+\end{center}
+\end{frame}
+
+%% 11. Code smells (tres columnas)
+\begin{frame}{Code Smells: síntomas de problemas de diseño}
+Un \concept{Code Smell} es un síntoma en la estructura del código que puede
+indicar un problema de diseño.
+
+\begin{threecol}
+  \begin{block}{Duplicación}
+    La misma lógica aparece en varios lugares.
+    \par\medskip\centering\textbf{¿Dónde debería vivir esta responsabilidad?}
+  \end{block}
+\nextcol
+  \begin{block}{Método gigante}
+    Una operación concentra demasiadas tareas.
+    \par\medskip\centering\textbf{¿Qué responsabilidades pueden separarse?}
+  \end{block}
+\nextcol
+  \begin{block}{Feature Envy}
+    Un método depende excesivamente de otra clase.
+    \par\medskip\centering\textbf{¿Está en el objeto correcto?}
+  \end{block}
+\end{threecol}
+
+\begin{callout}[halign=center]
+  Los Code Smells no son necesariamente errores: son señales que justifican
+  una revisión del diseño.
+\end{callout}
+\end{frame}
+
+%% 12. Refactorización
+\begin{frame}{Refactorización: mejorar sin cambiar el comportamiento}
+La refactorización modifica la estructura interna del código sin cambiar su
+comportamiento externo observable.
+
+\flow[mn node/.append style={minimum width=3cm}]{%
+  Pruebas\\verdes, Código\\funcional, Refactorización, Pruebas\\verdes}
+
+Ejemplos:
+\begin{itemize}
+  \item Extraer un método.
+  \item Renombrar una variable o método.
+  \item Eliminar duplicación.
+  \item Dividir una responsabilidad excesiva.
+  \item Mejorar la estructura sin alterar el comportamiento.
+\end{itemize}
+\end{frame}
+
+%% 13. Del código individual al equipo
+\begin{frame}{Del código individual al trabajo en equipo}
+Cuando varias personas construyen el mismo sistema necesitamos controlar los
+cambios.
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.5cm, mn node/.append style={minimum width=2.6cm}]
+  \node[mn node] (feature) {Rama de\\trabajo};
+  \node[mn node, right=of feature] (commit) {Commit};
+  \node[mn node, right=of commit]  (push)   {Push};
+  \node[mn node, right=of push]    (pr)     {Pull Request};
+  \node[mn node, below=0.8cm of pr]  (review) {Code Review};
+  \node[mn node, left=of review]     (merge)  {Integración};
+  \draw[mn arrow] (feature) -- (commit);
+  \draw[mn arrow] (commit) -- (push);
+  \draw[mn arrow] (push) -- (pr);
+  \draw[mn arrow] (pr) -- (review);
+  \draw[mn arrow] (review) -- (merge);
+\end{tikzpicture}
+\end{center}
+
+La integración deja de ser un evento al final del proyecto y se convierte en
+una actividad controlada del proceso de desarrollo.
+\end{frame}
+
+%% 14. Branching
+\begin{frame}{Estrategias de branching}
+Una estrategia de branching define cómo se organiza el trabajo paralelo en un
+repositorio. Para SafeRoute podemos trabajar con:
+
+\begin{center}
+\begin{tikzpicture}[mn node/.append style={minimum width=3cm,minimum height=0.65cm}]
+  \node[mn node] (main) {main};
+  \node[mn node, below left=0.9cm and 1.6cm of main]  (f1) {feature/calculo-peso};
+  \node[mn node, below right=0.9cm and 1.6cm of main] (f2) {feature/calculo-ruta};
+  \node[mn node, below=1.9cm of main] (f3) {feature/pruebas};
+  \draw[mn arrow] (main) -- (f1);
+  \draw[mn arrow] (main) -- (f2);
+  \draw[mn arrow] (main) -- (f3);
+\end{tikzpicture}
+\end{center}
+
+\flowline{Trabajo aislado, integración controlada, código compartido}
+
+\begin{callout}[halign=center]
+  Git Flow es una estrategia posible; el principio fundamental es controlar
+  cómo los cambios pasan del trabajo individual a la base compartida.
+\end{callout}
+\end{frame}
+
+%% 15. Commits, PR, Code Review (tres columnas)
+\begin{frame}{Commits, Pull Requests y Code Review}
+\begin{threecol}
+  \begin{block}{Commit}
+    Debe representar un cambio lógico y comprensible.
+    \par\medskip Ejemplo:\par \code{feat: calcular peso total del envío}
+  \end{block}
+\nextcol
+  \begin{block}{Pull Request}
+    Propone integrar cambios en una rama compartida.
+    \par\medskip Permite revisar el cambio antes de integrarlo.
+  \end{block}
+\nextcol
+  \begin{block}{Code Review}
+    Otra persona inspecciona el cambio.
+    \par\medskip Se revisan comportamiento, diseño, pruebas y legibilidad.
+  \end{block}
+\end{threecol}
+
+\begin{callout}[halign=center]
+  El objetivo de una revisión no es encontrar culpables: es mejorar el
+  producto y compartir conocimiento dentro del equipo.
+\end{callout}
+\end{frame}
+
+%% 16. Construcción segura (dos columnas)
+\begin{frame}{Construcción segura: validar y fallar de forma controlada}
+Las entradas pueden ser incorrectas, incompletas, inesperadas o
+potencialmente maliciosas.
+
+\begin{twocol}[split=0.58]
+  \concept{Principios:}
+  \begin{enumerate}\small
+    \item Validar las entradas en las fronteras apropiadas.
+    \item Mantener invariantes del dominio.
+    \item Fallar de manera explícita y controlada.
+    \item No silenciar excepciones.
+    \item No exponer información técnica innecesaria al usuario.
+  \end{enumerate}
+\nextcol
+  \concept{Invariantes de SafeRoute:}
+  \begin{notebox}
+    \code{capacidadVehiculo > 0}\par
+    \code{pesoEnvio <= capacidadVehiculo}
+  \end{notebox}
+\end{twocol}
+
+\begin{callout}[halign=center]
+  La seguridad también consiste en impedir que el sistema llegue a estados inválidos.
+\end{callout}
+\end{frame}
+
+%% 17. SafeRoute: ejemplo completo
+\begin{frame}{SafeRoute: de diseño a código y prueba}
+Consideremos una responsabilidad que ya podemos derivar del diseño:
+\begin{statement}Calcular el peso total de un envío\end{statement}
+
+\flow[mn node/.append style={minimum width=2.6cm}]{DCD, Secuencia, Método, Prueba, Git}
+
+El flujo de trabajo completo:
+\begin{center}
+  \flowline{Diseñar, Implementar, Probar, Refactorizar, Integrar}
+\end{center}
+\end{frame}
+
+%% 18. Vertical slice
+\begin{frame}{SafeRoute: una vertical slice}
+En lugar de implementar todo el módulo, construiremos una pequeña
+funcionalidad completa.
+
+\flow[mn node/.append style={minimum width=2.5cm}]{%
+  Historia:\\peso total, Prueba, Envio, Refactor, Pull Request}
+
+\begin{block}{Resultado}
+  Al finalizar, el equipo no solamente tendrá código: tendrá una
+  funcionalidad pequeña, probada, versionada y revisada.
+\end{block}
+\end{frame}
+
+%% 19. Taller
+\begin{frame}{Taller: construir una funcionalidad de SafeRoute}
+\textbf{Tiempo: 60 minutos}
+
+\begin{twocol}[split=0.5]
+  \begin{block}{Historia de usuario}
+    Como sistema de distribución, quiero conocer el peso total de un envío
+    para verificar que pueda ser transportado por un vehículo.
+  \end{block}
+\nextcol
+  \textbf{Flujo de trabajo:}
+  \begin{enumerate}\small
+    \item Crear una rama \code{feature/calculo-peso-envio}.
+    \item Escribir una prueba para el comportamiento esperado.
+    \item Ejecutar la prueba y obtener \textbf{RED}.
+    \item Implementar lo mínimo necesario.
+    \item Obtener \textbf{GREEN}.
+    \item Refactorizar manteniendo las pruebas verdes.
+    \item Crear un commit atómico.
+    \item Abrir un Pull Request.
+    \item Realizar una revisión por pares.
+  \end{enumerate}
+\end{twocol}
+\end{frame}
+
+%% 20. Criterios de entrega
+\begin{frame}{Taller: criterios de entrega}
+Cada equipo deberá demostrar:
+\begin{enumerate}
+  \item \textbf{Repositorio:} proyecto SafeRoute disponible en Git.
+  \item \textbf{Rama de trabajo:} una rama \code{feature/*} para la funcionalidad.
+  \item \textbf{Código:} implementación de la responsabilidad de cálculo.
+  \item \textbf{Pruebas:} al menos una prueba automatizada que demuestre el comportamiento.
+  \item \textbf{TDD:} evidencia del ciclo Red \arr\ Green \arr\ Refactor.
+  \item \textbf{Commit:} cambio lógico con mensaje descriptivo.
+  \item \textbf{Pull Request:} solicitud de integración revisada por otro integrante.
+\end{enumerate}
+\end{frame}
+
+%% 21. Preguntas de revisión (una columna angosta)
+\begin{frame}{Preguntas para revisar el trabajo}
+Antes de integrar el cambio:
+\begin{onecol}[width=0.92]
+  \begin{enumerate}\small
+    \item ¿La implementación corresponde al diseño realizado anteriormente?
+    \item ¿La responsabilidad está asignada al objeto adecuado?
+    \item ¿La prueba describe un comportamiento real del dominio?
+    \item ¿La prueba falla antes de implementar?
+    \item ¿La implementación contiene solamente lo necesario?
+    \item ¿El código puede leerse y entenderse fácilmente?
+    \item ¿Existe duplicación o una responsabilidad excesiva?
+    \item ¿La refactorización mantiene las pruebas verdes?
+    \item ¿El commit representa un cambio lógico?
+    \item ¿La revisión de código aporta alguna mejora concreta?
+  \end{enumerate}
+\end{onecol}
+\end{frame}
+
+%% 22. Cierre
+\begin{frame}{Cierre: del diseño al software}
+\begin{center}
+  {\Large\textbf{Sesiones 3--4}}\\[0.2em]
+  ¿Quién es responsable de qué?\\[0.4em]
+  \large\arr\\[0.4em]
+  {\Large\textbf{Sesión 5}}\\[0.2em]
+  ¿Cómo convertimos esas decisiones en código funcional, probado y mantenible?\\[0.4em]
+  \large\arr\\[0.4em]
+  {\Large\flowline{Construir, Probar, Mejorar, Integrar}}
+\end{center}
+
+\begin{statement}
+  El código es la implementación de decisiones de ingeniería, no el punto de
+  partida del proyecto.
+\end{statement}
+\end{frame}
+
+\end{document}

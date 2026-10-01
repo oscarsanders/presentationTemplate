@@ -1,0 +1,304 @@
+%%
+%% beamerthememinimalist.sty
+%%
+%% A minimalist, grayscale Beamer theme for technical talks and lectures.
+%% Works with pdfLaTeX, XeLaTeX and LuaLaTeX. Content in any babel language
+%% (tested with English and Spanish).
+%%
+%% Copyright (c) 2026 <Your Name>. Released under the MIT license (see LICENSE).
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthememinimalist}
+  [2026/10/01 v1.0.0 Minimalist Beamer theme]
+
+\mode<presentation>
+
+%% ------------------------------------------------------------------
+%% 1. Options
+%% ------------------------------------------------------------------
+\RequirePackage{iftex}
+
+\newif\ifmn@titlerule
+\newif\ifmn@sectionpages
+\colorlet{mn@accent}{black!75}
+\def\mn@footer{number}
+\def\mn@font{helvetica}
+
+\DeclareOptionBeamer{accent}{\colorlet{mn@accent}{#1}}
+\DeclareOptionBeamer{footer}{\def\mn@footer{#1}}
+\DeclareOptionBeamer{font}{\def\mn@font{#1}}
+\DeclareOptionBeamer{titlerule}[true]{\csname mn@titlerule#1\endcsname}
+\DeclareOptionBeamer{sectionpages}[true]{\csname mn@sectionpages#1\endcsname}
+\ProcessOptionsBeamer
+
+\def\mn@str@helvetica{helvetica}
+\def\mn@str@none{none}
+\def\mn@str@total{total}
+
+%% ------------------------------------------------------------------
+%% 2. Fonts and encodings (engine aware)
+%% ------------------------------------------------------------------
+\ifPDFTeX
+  \RequirePackage[T1]{fontenc}
+  \ifx\mn@font\mn@str@helvetica
+    \RequirePackage{helvet}
+    \renewcommand{\familydefault}{\sfdefault}
+  \fi
+\else
+  \RequirePackage{fontspec}
+  \ifx\mn@font\mn@str@helvetica
+    \IfFontExistsTF{TeX Gyre Heros}{%
+      \setsansfont{TeX Gyre Heros}%
+      \renewcommand{\familydefault}{\sfdefault}%
+    }{\PackageWarningNoLine{beamerthememinimalist}%
+      {Font 'TeX Gyre Heros' not found; using the default sans font}}
+  \fi
+\fi
+
+%% ------------------------------------------------------------------
+%% 3. Packages
+%% ------------------------------------------------------------------
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{ragged2e}
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{adjustbox}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,shapes.multipart,%
+  fit,calc,chains,backgrounds}
+\RequirePackage[skins]{tcolorbox}
+\RequirePackage{listings}
+
+%% ------------------------------------------------------------------
+%% 4. Colors, fonts and general appearance
+%% ------------------------------------------------------------------
+\usecolortheme{dove}
+
+\setbeamercolor{background canvas}{bg=white}
+\setbeamercolor{normal text}{fg=black!85,bg=white}
+\setbeamercolor{frametitle}{fg=black,bg=white}
+\setbeamercolor{title}{fg=black}
+\setbeamercolor{subtitle}{fg=black!70}
+\setbeamercolor{section title}{fg=mn@accent}
+\setbeamercolor{structure}{fg=mn@accent}
+\setbeamercolor{page number in head/foot}{fg=black!55}
+
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\small,series=\mdseries}
+\setbeamerfont{title}{size=\LARGE,series=\bfseries}
+\setbeamerfont{subtitle}{size=\large}
+\setbeamerfont{section title}{size=\Huge,series=\bfseries}
+\setbeamerfont{normal text}{size=\normalsize}
+\setbeamerfont{page number in head/foot}{size=\scriptsize}
+\setbeamerfont{block title}{series=\bfseries}
+\setbeamerfont{block title alerted}{series=\bfseries}
+\setbeamerfont{block title example}{series=\bfseries}
+\setbeamerfont{caption}{size=\footnotesize}
+\setbeamerfont{caption name}{series=\bfseries}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{bibliography item}[text]
+\setbeamertemplate{section in toc}[sections numbered]
+
+\setlength{\parskip}{0.3em}
+
+%% Footline: right-aligned frame number ("number", "total" or "none")
+\setbeamertemplate{footline}{%
+  \ifx\mn@footer\mn@str@none\else
+    \leavevmode\hfill
+    {\usebeamercolor[fg]{page number in head/foot}%
+     \usebeamerfont{page number in head/foot}%
+     \insertframenumber
+     \ifx\mn@footer\mn@str@total\,/\,\inserttotalframenumber\fi}%
+    \hspace*{\beamer@rightmargin}\vskip1.6ex
+  \fi}
+
+%% Frame title: left aligned, aligned with the text margins
+\setbeamertemplate{frametitle}{%
+  \nointerlineskip
+  \begin{beamercolorbox}[wd=\paperwidth,leftskip=\beamer@leftmargin,%
+      rightskip=\beamer@rightmargin]{frametitle}
+    \vskip1.4ex
+    \usebeamerfont{frametitle}\strut\insertframetitle\strut\par
+    \ifx\insertframesubtitle\@empty\else
+      {\usebeamerfont{framesubtitle}\usebeamercolor[fg]{subtitle}%
+       \insertframesubtitle\strut\par}%
+    \fi
+    \vskip.6ex
+  \end{beamercolorbox}%
+  \ifmn@titlerule
+    \par\nointerlineskip
+    {\color{mn@accent}\rule{\textwidth}{0.4pt}}\par
+  \fi}
+
+%% Title page: left aligned, with a short accent rule
+\setbeamertemplate{title page}{%
+  \begin{minipage}{\linewidth}
+    \raggedright
+    {\usebeamercolor[fg]{title}\usebeamerfont{title}\inserttitle\par}
+    \ifx\insertsubtitle\@empty\else
+      \vskip.5em
+      {\usebeamercolor[fg]{subtitle}\usebeamerfont{subtitle}\insertsubtitle\par}
+    \fi
+    \vskip1.1em
+    {\color{mn@accent}\rule{0.22\linewidth}{0.8pt}}\par
+    \vskip1.1em
+    {\usebeamerfont{author}\insertauthor\par}
+    \ifx\insertinstitute\@empty\else
+      \vskip.3em{\usebeamerfont{institute}\insertinstitute\par}%
+    \fi
+    \ifx\insertdate\@empty\else
+      \vskip.6em{\usebeamerfont{date}\insertdate\par}%
+    \fi
+  \end{minipage}}
+
+%% Section page and optional automatic section dividers
+\setbeamertemplate{section page}{%
+  \begin{minipage}{\linewidth}
+    \raggedright
+    {\usebeamercolor[fg]{section title}\usebeamerfont{section title}%
+     \insertsection\par}
+    \vskip.8em
+    {\color{mn@accent}\rule{0.22\linewidth}{0.8pt}}\par
+  \end{minipage}}
+\ifmn@sectionpages
+  \AtBeginSection[]{\begin{frame}[plain,c]\sectionpage\end{frame}}
+\fi
+
+%% ------------------------------------------------------------------
+%% 5. Inline helpers
+%% ------------------------------------------------------------------
+\newcommand{\concept}[1]{\textbf{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\arr}{\ensuremath{\rightarrow}}
+
+% \flowline{A, B, C}  ->  A -> B -> C   (bold, inline)
+\newcommand{\flowline}[1]{%
+  \textbf{\foreach \mn@x [count=\mn@i] in {#1}{\ifnum\mn@i>1\ \arr\ \fi\mn@x}}}
+
+%% ------------------------------------------------------------------
+%% 6. Columns: onecol, twocol and threecol (\nextcol separates columns)
+%% ------------------------------------------------------------------
+\pgfkeys{
+  /mn/twocol/.cd,
+  split/.store in=\mn@split,
+  gap/.store in=\mn@gap,
+  align/.store in=\mn@align,
+}
+\pgfkeys{
+  /mn/onecol/.cd,
+  width/.store in=\mn@onew,
+}
+
+\newenvironment{twocol}[1][]{%
+  \def\mn@split{0.5}\def\mn@gap{0.04}\def\mn@align{T}%
+  \pgfkeys{/mn/twocol/.cd,#1}%
+  \pgfmathsetmacro\mn@lf{(1-\mn@gap)*\mn@split}%
+  \pgfmathsetmacro\mn@rf{(1-\mn@gap)*(1-\mn@split)}%
+  \edef\mn@lw{\the\dimexpr\mn@lf\linewidth\relax}%
+  \edef\mn@rw{\the\dimexpr\mn@rf\linewidth\relax}%
+  \begin{columns}[\mn@align,onlytextwidth]%
+  \column{\mn@lw}}
+  {\end{columns}}
+\newcommand{\nextcol}{\column{\mn@rw}}
+
+% \begin{threecol}[gap=0.06] A \nextcol B \nextcol C \end{threecol}
+\newenvironment{threecol}[1][]{%
+  \def\mn@split{0.5}\def\mn@gap{0.06}\def\mn@align{T}%
+  \pgfkeys{/mn/twocol/.cd,#1}%
+  \pgfmathsetmacro\mn@lf{(1-\mn@gap)/3}%
+  \edef\mn@lw{\the\dimexpr\mn@lf\linewidth\relax}%
+  \let\mn@rw\mn@lw
+  \begin{columns}[\mn@align,onlytextwidth]%
+  \column{\mn@lw}}
+  {\end{columns}}
+
+\newenvironment{onecol}[1][]{%
+  \def\mn@onew{0.8}%
+  \pgfkeys{/mn/onecol/.cd,#1}%
+  \begin{center}\begin{minipage}{\mn@onew\linewidth}\RaggedRight}
+  {\end{minipage}\end{center}}
+
+%% ------------------------------------------------------------------
+%% 7. Tables: column types L{w}, C{w}, R{w}
+%% ------------------------------------------------------------------
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\Centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\RaggedLeft\arraybackslash}p{#1}}
+
+%% ------------------------------------------------------------------
+%% 8. Boxes: callout, statement, notebox  (built on tcolorbox)
+%% ------------------------------------------------------------------
+\tcbset{
+  mn base/.style={
+    enhanced, sharp corners, boxrule=0.5pt,
+    colframe=mn@accent, colback=white, coltext=black!85,
+    left=7pt, right=7pt, top=5pt, bottom=5pt,
+    before skip=0.6em, after skip=0.6em,
+    fonttitle=\bfseries\small, coltitle=white, colbacktitle=mn@accent,
+    toptitle=2pt, bottomtitle=2pt,
+  },
+}
+\newtcolorbox{callout}[1][]{mn base, #1}
+\newtcolorbox{statement}[1][]{mn base, halign=center, fontupper=\large\bfseries, #1}
+\newtcolorbox{notebox}[1][]{%
+  enhanced, sharp corners, frame hidden,
+  borderline west={2.5pt}{0pt}{mn@accent},
+  colback=black!5, coltext=black!85,
+  left=9pt, right=7pt, top=5pt, bottom=5pt,
+  before skip=0.6em, after skip=0.6em,
+  fonttitle=\bfseries\small, coltitle=mn@accent, colbacktitle=black!5,
+  #1}
+
+%% ------------------------------------------------------------------
+%% 9. TikZ styles and \flow
+%% ------------------------------------------------------------------
+\tikzset{
+  mn node/.style={draw, rounded corners, minimum width=2.5cm,
+    minimum height=0.75cm, align=center, font=\small},
+  mn arrow/.style={-{Latex[length=2mm]}, thick},
+  mn dashed arrow/.style={mn arrow, dashed},
+  mn circle/.style={mn node, circle, minimum size=2.2cm, minimum width=0pt},
+  mn flow/.style={start chain=going right, node distance=0.4cm,
+    every join/.style={mn arrow}},
+}
+
+% \flow[tikz options]{A, B, C}: horizontal chain of nodes joined by arrows,
+% centered and shrunk to the line width if too wide.
+\newcommand{\flow}[2][]{%
+  \begin{center}
+  \begin{adjustbox}{max width=\linewidth}
+  \begin{tikzpicture}[mn flow,#1]
+    \foreach \mn@x in {#2}{\node[mn node, on chain, join] {\mn@x};}
+  \end{tikzpicture}
+  \end{adjustbox}
+  \end{center}}
+
+%% ------------------------------------------------------------------
+%% 10. Code listings
+%% ------------------------------------------------------------------
+\lstdefinestyle{minimalist}{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape\color{black!60},
+  stringstyle=\color{black!70},
+  showstringspaces=false,
+  columns=fullflexible, keepspaces=true,
+  breaklines=true, tabsize=4,
+  backgroundcolor=\color{black!4},
+  frame=leftline, rulecolor=\color{mn@accent}, framerule=2pt,
+  xleftmargin=6pt, framexleftmargin=0pt,
+  aboveskip=0.4em, belowskip=0.4em,
+}
+\lstset{style=minimalist}
+\ifPDFTeX
+  \lstset{literate=%
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {¿}{{?`}}1 {¡}{{!`}}1}
+\fi
+
+\mode<all>
+\endinput
