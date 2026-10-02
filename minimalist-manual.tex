@@ -11,9 +11,9 @@
 \tcbset{
   demo base/.style={
     listing options={language={[LaTeX]TeX},basicstyle=\ttfamily\scriptsize,
-      breaklines=true,backgroundcolor={},frame=none,xleftmargin=0pt},
-    sharp corners, boxrule=0.4pt, colframe=black!55, colback=black!3,
-    colbacklower=white, colupper=black!85, halign lower=flush left,
+      breaklines=true,frame=none,xleftmargin=0pt,framexleftmargin=0pt},
+    sharp corners, boxrule=0.4pt, colframe=mn@mid, colback=white,
+    colbacklower=white, colupper=mn@text, halign lower=flush left,
     left=4pt, right=4pt, top=3pt, bottom=3pt,
     before skip=0.3em, after skip=0.3em},
   demo/.style={demo base, listing side text,
@@ -23,7 +23,7 @@
 
 \title{Minimalist Beamer Theme}
 \subtitle{User manual and example gallery}
-\author{Version 1.0.0}
+\author{Version 1.1.0}
 \institute{pdfLaTeX \textbullet\ XeLaTeX \textbullet\ LuaLaTeX}
 \date{October 2026}
 
@@ -39,7 +39,7 @@
 \section{Getting started}
 
 \begin{frame}{What is this theme?}
-  A \concept{minimalist, grayscale} Beamer theme: white background, sans-serif
+  A \concept{minimalist} Beamer theme: white background, \concept{blue tones}, sans-serif
   text, no navigation symbols, and a small set of reusable building blocks.
 
   \begin{twocol}
@@ -54,7 +54,7 @@
     \begin{itemize}
       \item Figures: TikZ, \code{\textbackslash flow}, images
       \item Tables: \code{booktabs}, \code{L}/\code{C}/\code{R}
-      \item Boxes: \code{callout}, \code{statement}, \dots
+      \item Boxes: \code{callout}, \code{warnbox}, \dots
       \item Code listings and math
     \end{itemize}
   \end{twocol}
@@ -85,15 +85,16 @@
 \end{frame}
 
 \begin{frame}{Theme options}
-  \small
+  \footnotesize
   Pass options to the theme: \code{\textbackslash usetheme[\textit{options}]\{minimalist\}}.
 
   \vspace{0.5em}
-  \begin{tabular}{@{}l l l L{5.6cm}@{}}
+  \begin{tabular}{@{}l L{2.9cm} l L{4.2cm}@{}}
     \toprule
     \textbf{Option} & \textbf{Values} & \textbf{Default} & \textbf{Effect}\\
     \midrule
-    \code{accent}       & any color expr.        & \code{black!75} & Color of bullets, rules, box frames and titles\\
+    \code{palette}      & \code{blue}, \code{teal}, \code{indigo}, \code{green}, \code{graphite} & \code{blue} & Color preset (accent + warm alert color)\\
+    \code{accent}       & any color expr.        & from palette & Overrides the main color; all tints follow it\\
     \code{footer}       & \code{number}, \code{total}, \code{none} & \code{number} & Frame counter style (bottom right)\\
     \code{font}         & \code{helvetica}, \code{default} & \code{helvetica} & Helvetica clone, or Beamer's default sans font\\
     \code{titlerule}    & boolean                & \code{false}    & Thin rule under each frame title\\
@@ -102,7 +103,44 @@
   \end{tabular}
 
   \vspace{0.6em}
-  Example: \code{\textbackslash usetheme[accent=blue!60!black,footer=total,titlerule]\{minimalist\}}
+  Example: \code{\textbackslash usetheme[palette=teal,footer=total,titlerule]\{minimalist\}}
+\end{frame}
+
+\definecolor{pBlue}{HTML}{1F4E8C}\definecolor{pBlueA}{HTML}{C2540A}
+\definecolor{pTeal}{HTML}{0F6B73}\definecolor{pTealA}{HTML}{C2410C}
+\definecolor{pIndigo}{HTML}{3B3F8F}\definecolor{pIndigoA}{HTML}{B45309}
+\definecolor{pGreen}{HTML}{2E6B4F}\definecolor{pGreenA}{HTML}{B45309}
+\definecolor{pGraph}{HTML}{404040}\definecolor{pGraphA}{HTML}{B03A2E}
+\newcommand{\sw}[2]{\tikz[baseline=-0.5ex]{\fill[#1] (0,-0.12) rectangle (0.42,0.12);\fill[#2] (0.46,-0.12) rectangle (0.62,0.12);}}
+
+\begin{frame}{Palettes and color psychology}
+  \footnotesize
+  \begin{tabular}{@{}l c L{9.4cm}@{}}
+    \toprule
+    \textbf{Palette} & \textbf{Colors} & \textbf{Typical association and use}\\
+    \midrule
+    \code{blue} (default) & \sw{pBlue}{pBlueA} & Trust, calm, focus. Safe choice for lectures and technical talks\\
+    \code{teal}   & \sw{pTeal}{pTealA}     & Clarity and balance; fresh, modern, good for learning content\\
+    \code{indigo} & \sw{pIndigo}{pIndigoA} & Depth and seriousness; research and formal presentations\\
+    \code{green}  & \sw{pGreen}{pGreenA}   & Growth and ease; comfortable for long reading\\
+    \code{graphite} & \sw{pGraph}{pGraphA} & The original neutral gray look\\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.5em}
+  \begin{twocol}[split=0.5]
+    \concept{How color is used}
+    \begin{itemize}\footnotesize
+      \item \textbf{Cool accent} (wide bar): titles, bullets, rules, box frames.
+      \item \textbf{Very light tint}: block and note backgrounds.
+      \item \textbf{Warm alert} (narrow bar): \alert{use once per slide} to pull the eye, as it contrasts with blue.
+    \end{itemize}
+  \nextcol
+    \begin{warnbox}[title=Keep in mind]\footnotesize
+      Color associations vary by culture and context; they are tendencies, not rules.
+      Legibility matters most: every preset keeps text and accent at $\ge 4.5{:}1$ contrast on white.
+    \end{warnbox}
+  \end{twocol}
 \end{frame}
 
 \begin{frame}[fragile]{Languages and TeX engines}
@@ -297,18 +335,29 @@ Single arrow: A \arr\ B
 \end{tcblisting}
 \end{frame}
 
-\begin{frame}[fragile]{Boxes: \texttt{notebox} and Beamer blocks}
+\begin{frame}[fragile]{Boxes: \texttt{notebox} and \texttt{warnbox}}
 \begin{tcblisting}{demo}
 \begin{notebox}[title=Note]
-  Soft gray note with a left bar.
+  Soft tinted note with a bar.
 \end{notebox}
 
+\begin{warnbox}[title=Attention]
+  Warm color: use sparingly.
+\end{warnbox}
+\end{tcblisting}
+  Both accept the same keys as \code{callout} (\code{title}, \code{halign}, \ldots).
+\end{frame}
+
+\begin{frame}[fragile]{Beamer blocks}
+\begin{tcblisting}{demo}
 \begin{block}{Block}
   Standard Beamer block.
 \end{block}
-
+\begin{exampleblock}{Example}
+  Example block.
+\end{exampleblock}
 \begin{alertblock}{Alert}
-  Use sparingly.
+  Warm alert block.
 \end{alertblock}
 \end{tcblisting}
 \end{frame}
@@ -353,11 +402,12 @@ def peso_total(envio):
     \code{onecol[width]}      & Centered single column of a given fraction of the width\\
     \code{callout[opts]}      & Outlined box, optional \code{title=}\\
     \code{statement[opts]}    & Centered, emphasized box\\
-    \code{notebox[opts]}      & Gray note with left bar\\
+    \code{notebox[opts]}      & Tinted note with left bar\\
+    \code{warnbox[opts]}      & Warm-colored box for a warning or key attention point\\
     \code{\textbackslash concept\{\}}, \code{\textbackslash code\{\}}, \code{\textbackslash arr} & Bold term, monospace, arrow\\
     \code{\textbackslash flowline\{A,B,C\}} & Inline chain  A \arr\ B \arr\ C\\
     \code{\textbackslash flow[opts]\{A,B,C\}} & TikZ node chain joined by arrows\\
-    \code{mn node}, \code{mn arrow}, \code{mn dashed arrow}, \code{mn circle} & TikZ styles\\
+    \code{mn node}, \code{mn highlight}, \code{mn alert node}, \code{mn arrow}, \code{mn dashed arrow}, \code{mn circle} & TikZ styles\\
     \code{L\{w\}}, \code{C\{w\}}, \code{R\{w\}} & Fixed-width table columns\\
     \code{lstlisting} (style \code{minimalist}) & Code listings (fragile frames)\\
     \bottomrule
@@ -368,7 +418,7 @@ def peso_total(envio):
   \begin{itemize}\small
     \item \concept{Aspect ratio:} \code{\textbackslash documentclass[aspectratio=43]\{beamer\}}.
     \item \concept{Top alignment:} class option \code{t}; use \code{[c]} on a single frame to center it.
-    \item \concept{Accent color:} \code{\textbackslash usetheme[accent=blue!50!black]\{minimalist\}}.
+    \item \concept{Palette / accent:} \code{[palette=teal]} or \code{[accent=red!60!black]}.
     \item \concept{Margins:} \code{\textbackslash setbeamersize\{text margin left=1.2cm\}}.
     \item \concept{Node look:} \code{\textbackslash tikzset\{mn node/.append style=\{fill=black!5\}\}}.
     \item \concept{Boxes:} \code{\textbackslash tcbset\{mn base/.append style=\{arc=3pt\}\}}.

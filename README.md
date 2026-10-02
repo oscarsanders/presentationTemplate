@@ -1,7 +1,7 @@
 # beamerthememinimalist
 
-A minimalist, grayscale **Beamer theme** for technical talks and lectures.
-White background, sans-serif text, no navigation symbols, and a small set of
+A minimalist **Beamer theme** for technical talks and lectures.
+White background with **blue tones** (5 palettes), sans-serif text, no navigation symbols, and a small set of
 reusable building blocks: one/two/three columns, process flows, tables, boxes
 and code listings.
 
@@ -10,7 +10,7 @@ and code listings.
   encoding and accents: `ñ á é í ó ú ¿ ¡`).
 * Works with **pdfLaTeX, XeLaTeX and LuaLaTeX** (engine detected via `iftex`).
 
-Version 1.0.0 -- see `CHANGELOG.md`. License: MIT (see `LICENSE`).
+Version 1.1.0 -- see `CHANGELOG.md`. License: MIT (see `LICENSE`).
 
 ## Files
 
@@ -33,7 +33,7 @@ $(kpsewhich -var-value TEXMFHOME)/tex/latex/beamer-minimalist/beamerthememinimal
 (then run `texhash` if your distribution requires it).
 
 Required packages (all in TeX Live / MiKTeX): `beamer`, `tikz`, `tcolorbox`,
-`listings`, `booktabs`, `array`, `ragged2e`, `adjustbox`, `iftex`, `amsmath`,
+`listings`, `booktabs`, `colortbl`, `array`, `ragged2e`, `adjustbox`, `iftex`, `amsmath`,
 `amssymb`, `pgf`; plus `psnfss` (pdfLaTeX) or `fontspec` + TeX Gyre Heros
 (XeLaTeX/LuaLaTeX).
 
@@ -63,11 +63,29 @@ Compile with `latexmk -pdf file.tex` (or `-xelatex` / `-lualatex`).
 
 | Option | Values | Default | Effect |
 |--------|--------|---------|--------|
-| `accent` | any xcolor expression | `black!75` | Bullets, rules, box frames, titles |
+| `palette` | `blue`, `teal`, `indigo`, `green`, `graphite` | `blue` | Color preset: main accent + warm alert color |
+| `accent` | any xcolor expression | from palette | Overrides the main color; tints and text color follow it |
 | `footer` | `number`, `total`, `none` | `number` | Frame counter (bottom right) |
 | `font` | `helvetica`, `default` | `helvetica` | Helvetica clone or Beamer's default sans |
 | `titlerule` | boolean | `false` | Thin rule under each frame title |
 | `sectionpages` | boolean | `false` | Divider frame at every `\section` |
+
+## Palettes and color
+
+Everything is derived from one **accent** color, plus a warm **alert** color
+used sparingly to draw attention (it contrasts with the cool accent):
+
+| Palette | Accent | Alert | Typical association |
+|---------|--------|-------|---------------------|
+| `blue` (default) | `#1F4E8C` | `#C2540A` | Trust, calm, focus |
+| `teal` | `#0F6B73` | `#C2410C` | Clarity, balance |
+| `indigo` | `#3B3F8F` | `#B45309` | Depth, seriousness |
+| `green` | `#2E6B4F` | `#B45309` | Growth, ease for long reading |
+| `graphite` | `#404040` | `#B03A2E` | Neutral gray (original look) |
+
+Color associations are tendencies that vary by culture; legibility matters
+more. Every preset keeps accent and alert at >= 4.5:1 contrast on white
+(WCAG AA). Use `\alert{}`, `warnbox` or `mn alert node` for the warm color.
 
 ## Columns (one, two or three)
 
@@ -88,10 +106,11 @@ By default a frame is a single full-width column. Use these where needed:
 | `\concept{}`, `\code{}`, `\arr` | Bold term, monospace, right arrow |
 | `\flowline{A, B, C}` | Inline `A -> B -> C` (bold) |
 | `\flow[tikz opts]{A, B\\x, C}` | TikZ chain of nodes joined by arrows, auto-shrunk to the line width |
-| TikZ styles | `mn node`, `mn arrow`, `mn dashed arrow`, `mn circle`, `mn flow` |
+| TikZ styles | `mn node`, `mn highlight`, `mn alert node`, `mn arrow`, `mn dashed arrow`, `mn circle`, `mn flow` |
 | `callout[opts]` | Outlined box; `title=...`, `halign=center`, any tcolorbox key |
 | `statement[opts]` | Centered, emphasized box |
-| `notebox[opts]` | Gray note with a left bar |
+| `notebox[opts]` | Tinted note with a left bar |
+| `warnbox[opts]` | Warm-colored box for warnings / key attention points |
 | Column types | `L{w}`, `C{w}`, `R{w}` for `tabular` (use with `booktabs`) |
 | `lstlisting` | Style `minimalist` is active by default; frames need `[fragile]` |
 

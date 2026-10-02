@@ -1,7 +1,7 @@
 %%
 %% beamerthememinimalist.sty
 %%
-%% A minimalist, grayscale Beamer theme for technical talks and lectures.
+%% A minimalist Beamer theme (white + blue tones by default) for technical talks and lectures.
 %% Works with pdfLaTeX, XeLaTeX and LuaLaTeX. Content in any babel language
 %% (tested with English and Spanish).
 %%
@@ -9,7 +9,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{beamerthememinimalist}
-  [2026/10/01 v1.0.0 Minimalist Beamer theme]
+  [2026/10/01 v1.1.0 Minimalist Beamer theme]
 
 \mode<presentation>
 
@@ -20,16 +20,43 @@
 
 \newif\ifmn@titlerule
 \newif\ifmn@sectionpages
-\colorlet{mn@accent}{black!75}
+\def\mn@palette{blue}
 \def\mn@footer{number}
 \def\mn@font{helvetica}
 
-\DeclareOptionBeamer{accent}{\colorlet{mn@accent}{#1}}
+\DeclareOptionBeamer{palette}{\def\mn@palette{#1}}
+\DeclareOptionBeamer{accent}{\def\mn@accentopt{#1}}
 \DeclareOptionBeamer{footer}{\def\mn@footer{#1}}
 \DeclareOptionBeamer{font}{\def\mn@font{#1}}
 \DeclareOptionBeamer{titlerule}[true]{\csname mn@titlerule#1\endcsname}
 \DeclareOptionBeamer{sectionpages}[true]{\csname mn@sectionpages#1\endcsname}
 \ProcessOptionsBeamer
+
+%% ------------------------------------------------------------------
+%% 1b. Palettes. Each preset = accent (main color) + alert (warm contrast).
+%%     All other colors are derived from the accent, so \usetheme[accent=...]
+%%     recolors the whole theme consistently. Contrast of accent and alert
+%%     against white is >= 4.5:1 (WCAG AA) in every preset.
+%% ------------------------------------------------------------------
+\def\mn@pal@blue{%
+  \definecolor{mn@accent}{HTML}{1F4E8C}\definecolor{mn@alert}{HTML}{C2540A}}
+\def\mn@pal@teal{%
+  \definecolor{mn@accent}{HTML}{0F6B73}\definecolor{mn@alert}{HTML}{C2410C}}
+\def\mn@pal@indigo{%
+  \definecolor{mn@accent}{HTML}{3B3F8F}\definecolor{mn@alert}{HTML}{B45309}}
+\def\mn@pal@green{%
+  \definecolor{mn@accent}{HTML}{2E6B4F}\definecolor{mn@alert}{HTML}{B45309}}
+\def\mn@pal@graphite{%
+  \definecolor{mn@accent}{HTML}{404040}\definecolor{mn@alert}{HTML}{B03A2E}}
+\@ifundefined{mn@pal@\mn@palette}{%
+  \PackageWarning{beamerthememinimalist}{Unknown palette '\mn@palette';
+    using 'blue'}\mn@pal@blue}{\csname mn@pal@\mn@palette\endcsname}
+\ifdefined\mn@accentopt\colorlet{mn@accent}{\mn@accentopt}\fi
+\colorlet{mn@text}{mn@accent!22!black}
+\colorlet{mn@muted}{mn@accent!45!black!75!white}
+\colorlet{mn@mid}{mn@accent!70!white}
+\colorlet{mn@tint2}{mn@accent!18!white}
+\colorlet{mn@tint}{mn@accent!8!white}
 
 \def\mn@str@helvetica{helvetica}
 \def\mn@str@none{none}
@@ -58,6 +85,7 @@
 %% ------------------------------------------------------------------
 %% 3. Packages
 %% ------------------------------------------------------------------
+\RequirePackage{colortbl}
 \RequirePackage{booktabs}
 \RequirePackage{array}
 \RequirePackage{ragged2e}
@@ -76,13 +104,22 @@
 \usecolortheme{dove}
 
 \setbeamercolor{background canvas}{bg=white}
-\setbeamercolor{normal text}{fg=black!85,bg=white}
-\setbeamercolor{frametitle}{fg=black,bg=white}
-\setbeamercolor{title}{fg=black}
-\setbeamercolor{subtitle}{fg=black!70}
+\setbeamercolor{normal text}{fg=mn@text,bg=white}
+\setbeamercolor{frametitle}{fg=mn@accent,bg=white}
+\setbeamercolor{framesubtitle}{fg=mn@muted}
+\setbeamercolor{title}{fg=mn@accent}
+\setbeamercolor{subtitle}{fg=mn@muted}
 \setbeamercolor{section title}{fg=mn@accent}
 \setbeamercolor{structure}{fg=mn@accent}
-\setbeamercolor{page number in head/foot}{fg=black!55}
+\setbeamercolor{alerted text}{fg=mn@alert}
+\setbeamercolor{page number in head/foot}{fg=mn@muted}
+\setbeamercolor{caption name}{fg=mn@accent}
+\setbeamercolor{block title}{fg=mn@accent,bg=mn@tint2}
+\setbeamercolor{block body}{fg=mn@text,bg=mn@tint}
+\setbeamercolor{block title alerted}{fg=mn@alert,bg=mn@alert!16!white}
+\setbeamercolor{block body alerted}{fg=mn@text,bg=mn@alert!6!white}
+\setbeamercolor{block title example}{fg=mn@accent,bg=mn@mid!28!white}
+\setbeamercolor{block body example}{fg=mn@text,bg=mn@tint}
 
 \setbeamerfont{frametitle}{size=\large,series=\bfseries}
 \setbeamerfont{framesubtitle}{size=\small,series=\mdseries}
@@ -170,9 +207,9 @@
 %% ------------------------------------------------------------------
 %% 5. Inline helpers
 %% ------------------------------------------------------------------
-\newcommand{\concept}[1]{\textbf{#1}}
+\newcommand{\concept}[1]{\textbf{\textcolor{mn@accent}{#1}}}
 \newcommand{\code}[1]{\texttt{#1}}
-\newcommand{\arr}{\ensuremath{\rightarrow}}
+\newcommand{\arr}{\ensuremath{\textcolor{mn@accent}{\rightarrow}}}
 
 % \flowline{A, B, C}  ->  A -> B -> C   (bold, inline)
 \newcommand{\flowline}[1]{%
@@ -224,6 +261,7 @@
 %% ------------------------------------------------------------------
 %% 7. Tables: column types L{w}, C{w}, R{w}
 %% ------------------------------------------------------------------
+\AtBeginDocument{\arrayrulecolor{mn@accent}}
 \newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\Centering\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\RaggedLeft\arraybackslash}p{#1}}
@@ -234,7 +272,7 @@
 \tcbset{
   mn base/.style={
     enhanced, sharp corners, boxrule=0.5pt,
-    colframe=mn@accent, colback=white, coltext=black!85,
+    colframe=mn@accent, colback=white, coltext=mn@text,
     left=7pt, right=7pt, top=5pt, bottom=5pt,
     before skip=0.6em, after skip=0.6em,
     fonttitle=\bfseries\small, coltitle=white, colbacktitle=mn@accent,
@@ -242,23 +280,28 @@
   },
 }
 \newtcolorbox{callout}[1][]{mn base, #1}
-\newtcolorbox{statement}[1][]{mn base, halign=center, fontupper=\large\bfseries, #1}
+\newtcolorbox{statement}[1][]{mn base, colback=mn@tint, halign=center,
+  fontupper=\large\bfseries\color{mn@accent}, #1}
+\newtcolorbox{warnbox}[1][]{mn base, colframe=mn@alert, colback=mn@alert!6!white,
+  colbacktitle=mn@alert, #1}
 \newtcolorbox{notebox}[1][]{%
   enhanced, sharp corners, frame hidden,
   borderline west={2.5pt}{0pt}{mn@accent},
-  colback=black!5, coltext=black!85,
+  colback=mn@tint, coltext=mn@text,
   left=9pt, right=7pt, top=5pt, bottom=5pt,
   before skip=0.6em, after skip=0.6em,
-  fonttitle=\bfseries\small, coltitle=mn@accent, colbacktitle=black!5,
+  fonttitle=\bfseries\small, coltitle=mn@accent, colbacktitle=mn@tint,
   #1}
 
 %% ------------------------------------------------------------------
 %% 9. TikZ styles and \flow
 %% ------------------------------------------------------------------
 \tikzset{
-  mn node/.style={draw, rounded corners, minimum width=2.5cm,
-    minimum height=0.75cm, align=center, font=\small},
-  mn arrow/.style={-{Latex[length=2mm]}, thick},
+  mn node/.style={draw=mn@accent, fill=mn@tint, text=mn@text, rounded corners,
+    minimum width=2.5cm, minimum height=0.75cm, align=center, font=\small},
+  mn highlight/.style={mn node, fill=mn@accent, text=white},
+  mn alert node/.style={mn node, draw=mn@alert, fill=mn@alert!8!white},
+  mn arrow/.style={-{Latex[length=2mm]}, thick, color=mn@accent},
   mn dashed arrow/.style={mn arrow, dashed},
   mn circle/.style={mn node, circle, minimum size=2.2cm, minimum width=0pt},
   mn flow/.style={start chain=going right, node distance=0.4cm,
@@ -280,14 +323,14 @@
 %% 10. Code listings
 %% ------------------------------------------------------------------
 \lstdefinestyle{minimalist}{
-  basicstyle=\ttfamily\footnotesize,
-  keywordstyle=\bfseries,
-  commentstyle=\itshape\color{black!60},
-  stringstyle=\color{black!70},
+  basicstyle=\ttfamily\footnotesize\color{mn@text},
+  keywordstyle=\bfseries\color{mn@accent},
+  commentstyle=\itshape\color{mn@muted},
+  stringstyle=\color{mn@alert},
   showstringspaces=false,
   columns=fullflexible, keepspaces=true,
   breaklines=true, tabsize=4,
-  backgroundcolor=\color{black!4},
+  backgroundcolor=\color{mn@tint},
   frame=leftline, rulecolor=\color{mn@accent}, framerule=2pt,
   xleftmargin=6pt, framexleftmargin=0pt,
   aboveskip=0.4em, belowskip=0.4em,
